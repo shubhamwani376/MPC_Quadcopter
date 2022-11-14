@@ -1,0 +1,8 @@
+import matplotlib as plt
+import numpy as np
+import networkx as nx
+import rrt_star
+import plot3denv as p3denv
+
+if __name__ == '__main__':
+    
