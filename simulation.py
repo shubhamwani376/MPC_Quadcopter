@@ -1,8 +1,7 @@
-#!/usr/bin/python3
 from matplotlib import pyplot as plt
 import numpy as np
 import networkx as nx
-import pathplanning
+import pathplanning as path
 import plot3denv as p3denv
 
 if __name__ == '__main__':
@@ -16,7 +15,7 @@ if __name__ == '__main__':
 
     # Performing RRT* on env and getting the waypoints
     path_rrt = np.array([])
-    path_rrt = pathplanning.rrt_star(X, X_goal, arena_size,  X_goal_threshold, path_threshold)
+    path_rrt = path.rrt_star(X, X_goal, arena_size,  X_goal_threshold, path_threshold)
 
     # Visualise the path
     #p3denv.
