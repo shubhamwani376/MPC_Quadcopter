@@ -1,3 +1,1 @@
-Jai mata di!
-Jai shree ram!
-Ganpati bappa morya
+some file example
