@@ -7,7 +7,6 @@ def trajpp(X,X_wp,X_goal,tf1,tf2):
     for j in range(3):
         coeff[:,j+3] = polycoeff(X_wp[j],X_goal[j],tf2)
     np.set_printoptions(precision=3)
-    print(coeff)
     return coeff
 
 def polycoeff(pos_start,pos_end,tf):
@@ -26,8 +25,6 @@ def postime(coeff,time,tf1,tf2):
     else:
         time = time - tf1
         timearray = np.array([time**5,time**4,time**3,time**2,time**1,1])
-        pos = print("second")
         pos = np.multiply(timearray,coeff[:,3:6].T)
-        print(pos)
         pos = np.sum([pos],axis = 2)
-    return pos #x,y,z
+    return pos #x,y,z as np array

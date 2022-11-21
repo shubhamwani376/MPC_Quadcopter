@@ -1,39 +1,50 @@
 import numpy as np
-# from matplotlib import pyplot as plt
-# import networkx as nx
+#import networkx as nx
 import arenaviz
 import trajplan as tp
+import quaternion
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
-    X = np.array([1,1,1],dtype = float) # m,m,m
-    X_wp = np.array([5,9,2.5],dtype = float) # m,m,m
-    X_goal = np.array([9,1,4],dtype = float) # m,m,m
-    arena_size = np.array([10,10,5])  # m,m,m
-    drone_size = np.array([0.1,0.1]) #m,m
-    q = np.array([1,0,0,0])
+
+    # Arena and traj Definitions
+    X = np.array([1,1,1],dtype = np.float64) # m,m,m
+    X_wp = np.array([5,9,2.5],dtype = np.float64) # m,m,m
+    X_goal = np.array([9,1,4],dtype = np.float64) # m,m,m
+    arena_size = np.array([10,10,5],dtype = np.float64)  # m,m,m
     tf1 = 30 # sec
     tf2 = 30 # sec
-    time = 1
+    t_step = 0.01 # sec
 
+    # Drone properties definition
+    drone_size = np.array([1,1],dtype = np.float64) #m,m X and Y size, total 
+    mass = np.array([0.25]) #0.25 kg
+    #q = np.array([1,0,0,0])
+    q = np.quaternion(1,0,0,0)
+
+    # Physical Properties
+    g = np.array([0,0,9.8]) #m/s^2
 
     coeff = tp.trajpp(X,X_wp,X_goal,tf1,tf2)
-    goal = tp.postime(coeff,time,tf1,tf2)
-    arenaviz.plotstate(X,q,arena_size,drone_size)
+    time = np.arange(0,tf1+tf2,t_step)
+    r_des = np.zeros((3,time.size))
+    for i in range(time.size):
+        r_des[:,i] = tp.postime(coeff,time[i],tf1,tf2)
+    r_des1dot = np.gradient(r_des,t_step, axis = 1)
+    r_des2dot = np.gradient(r_des1dot,t_step, axis = 1)
+    r_des3dot = np.gradient(r_des2dot,t_step, axis = 1)
 
-    print(goal)
-    #time = np.linspace
-
-    #for t in np.linspace
-
+    # T_des = np.zeros_like(r_des)
+    # for i in range(time.size):
+    #     T_des[2,i] = mass * np.linalg.norm()
 
 
-    # X_goal_threshold = 0.1 # metre, sphere
-    # path_threshold = np.array([0.1])
-    # path_threshold = np.array([0.1])
+    # Uncomment to visualise x axis pos, vel, accn, jerk
+    # fig , axs = plt.subplots(4,1)
+    # axs[0].plot(time,r_des[0,:])
+    # axs[1].plot(time,r_des1dot[0,:])
+    # axs[2].plot(time,r_des2dot[0,:])
+    # axs[3].plot(time,r_des3dot[0,:])
+    # plt.show()
 
-    # Performing RRT* on env and getting the waypoints
-    # path_rrt = np.array([])
-    # path_rrt = path.rrt_star(X, X_goal, arena_size,  X_goal_threshold, path_threshold)
-
-    # Visualise the path
-    #p3denv.
+    arenaviz.plot_state(X,q,arena_size,drone_size)
