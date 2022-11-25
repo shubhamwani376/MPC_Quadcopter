@@ -16,4 +16,4 @@ pip install matplotlib
 ```
 ## Reference
 Class notes MAE271D @ UCLA, Fall 22
-Relevant files added to folder [Reference](MPC_Quadcopter/Reference)
+Relevant files added to folder [Reference](https://github.com/shubhamwani376/MPC_Quadcopter/tree/main/Reference)
