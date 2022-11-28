@@ -1,6 +1,6 @@
 ## Trajectory Tracking PD controller with quaternion based dynamics
 ### Author:
-[Shubham Wani](https://www.linkedin.com/in/shubhamwani/)
+[Shubham Wani](https://www.linkedin.com/in/shubhamwani/) Nikunj Sanghai
 
 ## Implementation
 This project implements the following features:
