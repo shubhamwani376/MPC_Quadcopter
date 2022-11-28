@@ -3,17 +3,20 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d as mpl
 import quatfunc
 
-def plot_state(X,q,arena_size,drone_size):
-    fig = plt.figure()
-    ax = plt.axes(projection = '3d')
+def plot_state(X,q,arena_size,drone_size,u,fig,ax):
+    # fig = plt.figure()
+    # ax = plt.axes(projection = '3d')
     ax.plot3D(X[0],X[1],X[2],'bo')
     ax.set_xlim(0, arena_size[0])
     ax.set_ylim(0, arena_size[1])
     ax.set_zlim(0, arena_size[2])
-    ax.bar3d([4.5],[0],[0],[1],[8],[5],shade = 'true')
+    #ax.bar3d([4.5],[0],[0],[1],[8],[5],shade = 'true')
     plot_orientation(X,q,drone_size,ax)
-    ax.view_init(elev=ax.elev, azim=ax.azim-90)
-    plt.show()
+    #ax.view_init(elev=ax.elev, azim=ax.azim-90)
+    plt.draw()
+    plt.pause(0.001)
+
+
 
 def plot_orientation(X,q,drone_size,ax):
     x_right = quatfunc.quat_mul( quatfunc.quat_mul(q , np.array([0,drone_size[0]/2,0,0])) , quatfunc.quat_conj(q) )

@@ -12,17 +12,17 @@ if __name__ == '__main__':
     X_wp = np.array([5,9,2.5],dtype = np.float64) # m,m,m
     X_goal = np.array([9,1,4],dtype = np.float64) # m,m,m
     arena_size = np.array([10,10,5],dtype = np.float64)  # m,m,m
-    tf1 = 1 # sec
-    tf2 = 1 # sec
+    tf1 = 5 # sec
+    tf2 = 5 # sec
     t_step = 0.01 # sec
 
     # Drone properties definition
     drone_size = np.array([1,1],dtype = np.float64) #m,m X and Y size, total
     mass = np.array([0.25]) #0.25 kg
-    J = np.diag([0.01,0.01,0.01]) # Inertia matrix
+    J = np.diag([0.1,0.1,0.1]) # Inertia matrix
     q = np.array([1,0,0,0])
-    K_p = np.array([0,0,0])
-    K_d = np.array([0,0,0])
+    K_p = np.array([10,10,10])
+    K_d = np.array([2,2,2])
     # K_p = np.array([2000,2000,2000])
     # K_d = np.array([100,100,100])
 
@@ -97,22 +97,21 @@ if __name__ == '__main__':
         k = 0
         # lda = 20
         # k = 300
-        q_err[:,i] = quatfunc.quat_mul(q_des[:,i],q_act[:,i])
-        q_err[:,i] = quatfunc.quat_norm(q_err[:,i])
+        q_err[:,i] = quatfunc.quat_mul(quatfunc.quat_conj(q_des[:,i]),q_act[:,i])
         if i>0:
             q_err_dot[:,i] = (q_err[:,i]-q_err[:,i-1])/t_step
-        w_err[:,i] = w_act[:,i] - w_des[:,i]
+        w_err[:,i] = w_act[:,i] - quatfunc.quat_mul3(quatfunc.quat_conj(q_err[:,i]), np.concatenate(([0],w_des[:,i])),q_err[:,i])[1:4]
         r_err[:,i] = r_act[:,i] - r_des[:,i]
         if i>0:
             r_err_dot[:,i] = (r_err[:,i]-r_err[:,i-1])/t_step
 
-        Mb_act[:,i] = J @ (w_des_dot[:,i] - lda * np.sign(q_err_dot[0,i])*q_err_dot[1:4,i] - k*(w_err[:,i]+lda*np.sign(q_err[0,i])*q_err[1:4,i]))
+        Mb_act[:,i] = (w_des_dot[:,i] - lda * np.sign(q_err[0,i])*q_err_dot[1:4,i] - k*(w_err[:,i]+lda*np.sign(q_err[0,i])*q_err[1:4,i]))
         T_act[:,i] = quatfunc.quat_mul3(quatfunc.quat_conj(q_act[:,i]), np.concatenate(([0],mass*(r_des2dot[:,i]+g-K_p*r_err[:,i]-K_d*r_err_dot[:,i]))) , q_act[:,i])[1:4] #T_act[:,i]
         #temp = np.concatenate(([0],mass*(r_des2dot[:,i]+g-K_p*r_err[:,i]-K_d*r_err_dot[:,i])))
         ## Dynamics
         if (i==(time.size-1)):
             break
-        r_act_2dot[:,i+1] = r_des2dot[:,i]+g- g -K_p*r_err[:,i]-K_d*r_err_dot[:,i] 
+        r_act_2dot[:,i+1] = r_des2dot[:,i]+g - g - K_p*r_err[:,i]-K_d*r_err_dot[:,i]
         r_act_dot[:,i+1] = r_act_2dot[:,i+1]*t_step + r_act_dot[:,i]
         r_act[:,i+1] = r_act_dot[:,i+1]*t_step + r_act[:,i]
         q_act_dot[:,i+1] = 0.5*quatfunc.quat_mul( q_act[:,i],np.concatenate(([0],w_act[:,i])) )
@@ -120,6 +119,11 @@ if __name__ == '__main__':
         w_act_dot[:,i+1] = np.linalg.inv(J) @ ( np.cross(-1*w_act[:,i], J @ w_act[:,i]) + Mb_act[:,i])
         w_act[:,i+1] = w_act_dot[:,i+1]*t_step + w_act[:,i]
     print(r_act)
+    fig = plt.figure(figsize=(10, 10))
+    ax = plt.axes(projection = '3d')
+    for i in range(time.size):
+        if i%10==0:
+            arenaviz.plot_state(r_act[:,i],q_act[:,i],arena_size,drone_size,i,fig,ax)
 
 
         
@@ -128,10 +132,10 @@ if __name__ == '__main__':
 
     # Uncomment to visualise x axis pos, vel, accn, jerk
     fig , axs = plt.subplots(4,1)
-    axs[0].plot(time,T_act[2,:])
-    axs[1].plot(time,r_err[0,:])
-    axs[2].plot(time,r_err[1,:])
-    axs[3].plot(time,r_err[2,:])
+    #axs[0].plot(time,T_act[2,:])
+    axs[1].plot(time,np.linalg.norm(q_err,axis = 0))
+    # axs[2].plot(time,r_err[1,:])
+    # axs[3].plot(time,r_err[2,:])
     plt.show()
 
     ##arenaviz.plot_state(X,q,arena_size,drone_size)
