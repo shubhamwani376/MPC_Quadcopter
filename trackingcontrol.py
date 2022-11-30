@@ -4,6 +4,7 @@ import arenaviz
 import trajplan as tp
 import quatfunc
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 if __name__ == '__main__':
 
@@ -24,7 +25,7 @@ if __name__ == '__main__':
     K_p = np.array([100,100,100])
     K_d = np.array([20,20,20])
     lda = 20
-    k = 5
+    k = 20
 
     # Physical Properties
     g = np.array([0,0,9.8]) #m/s^2, +ve as defined in eqs
@@ -112,21 +113,25 @@ if __name__ == '__main__':
         if (i==(time.size-1)):
             break
         #r_act_2dot[:,i+1] = -1*g +  r_des2dot[:,i]+g  - K_p*r_err[:,i]-K_d*r_err_dot[:,i]
-        r_act_2dot[:,i+1] = -1*g + 0.95* (r_des2dot[:,i]+g  - K_p*r_err[:,i]-K_d*r_err_dot[:,i])
+        r_act_2dot[:,i+1] = -1*g + 1* (r_des2dot[:,i]+g  - K_p*r_err[:,i]-K_d*r_err_dot[:,i])
         #r_act_2dot[:,i+1] = -1*g + (quatfunc.quat_mul3(q_act[:,i], np.concatenate(([0],1*T_act[:,i])),quatfunc.quat_conj(q_act[:,i]))[1:4])/mass
 
         r_act_dot[:,i+1] = r_act_2dot[:,i+1]*t_step + r_act_dot[:,i]
         r_act[:,i+1] = r_act_dot[:,i+1]*t_step + r_act[:,i]
         q_act_dot[:,i+1] = 0.5*quatfunc.quat_mul( q_act[:,i],np.concatenate(([0],w_act[:,i])) )
         q_act[:,i+1] = q_act_dot[:,i+1]*t_step + q_act[:,i]
-        w_act_dot[:,i+1] = np.linalg.inv(J) @ ( np.cross(-1*w_act[:,i], J @ w_act[:,i]) + 0.95*Mb_act[:,i])
+        w_act_dot[:,i+1] = np.linalg.inv(J) @ ( np.cross(-1*w_act[:,i], J @ w_act[:,i]) + 1*Mb_act[:,i])
         w_act[:,i+1] = w_act_dot[:,i+1]*t_step + w_act[:,i]
     
-    # fig = plt.figure(figsize=(10, 10))
-    # ax = plt.axes(projection = '3d')
-    # for i in range(time.size):
-    #     #if i%10==0:
-    #     arenaviz.plot_state(r_act[:,i],q_act[:,i],arena_size,drone_size,i,fig,ax)
+    fig = plt.figure(figsize=(10, 10))
+    ax = plt.axes(projection = '3d')
+
+    for i in range(time.size):
+        if i%10==0:
+            arenaviz.plot_state(r_act[:,i],q_act[:,i],arena_size,drone_size,fig,ax,(i/(10*time.size)))
+            #filename='images/drone_step'+str(i)+'.png'
+            #plt.savefig(filename, dpi=96)
+            
 
     # Uncomment to visualise x axis pos, vel, accn, jerk
     fig , axs = plt.subplots(4,1)
