@@ -9,10 +9,14 @@ This project implements the following features:
 3. PD control on position and attitude error and their relevant graphs
 4. Quaternion based dynamics instead of rotation/euler angles
 
+## Video
+![Video](https://github.com/shubhamwani376/MPC_Quadcopter/blob/main/Quadrotor.gif)
+
 ## Dependencies
 ```
 pip install numpy
 pip install matplotlib
+pip install opencv-python # only for creating video
 ```
 ## Reference
 Class notes MAE271D @ UCLA, Fall 22
